@@ -1,0 +1,9 @@
+local value is 0.8746757834 on core 3 of n198.mpi.sam.pitt.edu ( 0.6201169491 s)
+local value is 0.7194139991 on core 14 of n199.mpi.sam.pitt.edu ( 0.6711099148 s)
+4 MPI processes
+8 openMP threads
+local value is 0.9799146525 on core 6 of n197.mpi.sam.pitt.edu ( 0.6919870377 s)
+local value is 0.5675882183 on core 5 of n200.mpi.sam.pitt.edu ( 0.6919379234 s)
+
+Global Pi is   3.1415926533
+1.016902 seconds
