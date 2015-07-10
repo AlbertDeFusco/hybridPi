@@ -39,13 +39,28 @@ int main()
   }
 
 #ifdef USE_MPI
-  if(myRank == 0)
+  if(myRank == 0) printf("%d openMP threads\n",numThreads);
+#else
+#ifdef USE_OPENMP
+  printf("%d openMP threads\n",numThreads);
 #endif
-    printf("%d openMP threads\n",numThreads);
+#endif
 
   const long int num_steps=8000000000;
   double time = omp_get_wtime();
-  double pi = computePi(0L,num_steps);
+#ifdef USE_MPI
+  long double workPerRank=num_steps/static_cast<long int>(numRanks);
+  long int myStart = myRank*workPerRank+1;
+  long int myEnd   = myRank*workPerRank+workPerRank;
+  if(myRank==numRanks-1)
+    myEnd = myEnd + (num_steps - workPerRank*numRanks);
+  double pi = computePi(myStart,myEnd);
+  double globalPi;
+  MPI_Reduce(&pi,&globalPi,1,MPI_DOUBLE,MPI_PROD,0,MPI_COMM_WORLD);
+  globalPi=globalPi/2.0;
+#else
+  double pi = computePi(1L,num_steps);
+#endif
   time = omp_get_wtime() - time;
 
   cout.precision(10);
@@ -54,6 +69,10 @@ int main()
     << " on core " << myCPU << " of " << hostname
     << " ( " << time << " s)"
     << endl;
+#ifdef USE_MPI
+  if(myRank==0)
+    printf("Global Pi is %14.10f\n",globalPi);
+#endif
 
   return 0;
 
@@ -62,26 +81,19 @@ int main()
 
 double computePi(long int start, long int stop)
 {
-  double pi, sum=0.0;
-  double step=1.0/(double) (stop - start + 1);
+  double pi;
+  double prod=1.0;
 
 #ifdef USE_OPENMP
-#pragma omp parallel for reduction(+:sum)
+#pragma omp parallel for reduction(*:prod)
 #endif
   for (long int i=start;i<=stop;i++)
   {
-    double x=(i+0.5)*step;
-    sum+= arc(x);
+    double temp = 4.0*i*i;
+    prod*= temp/(temp - 1.0);
   }
-  pi = sum*step;
+  pi = prod*2.0;
 
 
   return pi;
-}
-
-
-double arc(double x)
-{
-  double y = 4.0/(1+x*x);
-  return y;
 }

@@ -1,4 +1,4 @@
-all: pi pi-noMPI pi-noMP pi-serial
+all: pi pi-noMPI pi-noOMP pi-serial
 
 CC = icc
 mpiModule = source /etc/profile.d/modules.sh && module load openmpi@1.8.6%intel@15.0.3-ukxwbpm
@@ -14,11 +14,11 @@ pi: $(source)
 pi-noMPI: $(source)
 	$(CC) $< -DUSE_OPENMP -openmp -o $@
 
-pi-noMP: $(source)
+pi-noOMP: $(source)
 	$(mpiModule) && $(MPICC) $< -DUSE_MPI -openmp -o $@
 
 pi-serial: $(source)
 	$(CC) $< -openmp -o $@
 
 clean:
-	rm -f pi pi-noMPI pi-noMP pi-serial
+	rm -f pi pi-noMPI pi-noOMP pi-serial
