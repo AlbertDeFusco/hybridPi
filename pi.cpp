@@ -1,5 +1,6 @@
 #include <iostream>
 #include <stdio.h>
+#include <unistd.h>
 
 #ifdef USE_MPI
 #include <mpi.h>
@@ -12,6 +13,7 @@ double arc(double x);
 double computePi(long int start, long int stop,long int num_steps);
 int main()
 {
+  double globalTime = omp_get_wtime();
 
 #ifdef USE_MPI
   MPI_Init(NULL, NULL);
@@ -24,6 +26,8 @@ int main()
 
   if(myRank == 0)
     printf("%d MPI processes\n",numRanks);
+  MPI_Barrier(MPI_COMM_WORLD);
+  usleep(20);
 #endif
 
   char hostname[128];
@@ -44,6 +48,11 @@ int main()
 #else
   printf("%d openMP threads\n",numThreads);
 #endif
+#endif
+
+#ifdef USE_MPI
+  MPI_Barrier(MPI_COMM_WORLD);
+  usleep(20);
 #endif
 
   const long int num_steps=8000000000;
@@ -69,9 +78,20 @@ int main()
     << " ( " << time << " s)"
     << endl;
 #ifdef USE_MPI
+  MPI_Barrier(MPI_COMM_WORLD);
+  usleep(20);
   if(myRank==0)
-    printf("Global Pi is %14.10f\n",globalPi);
+    printf("\nGlobal Pi is %14.10f\n",globalPi);
 #endif
+
+  globalTime = omp_get_wtime() - globalTime;
+#ifdef USE_MPI
+  if(myRank==0)
+    printf("%f seconds\n",globalTime);
+#else
+  printf("\n%f seconds\n",globalTime);
+#endif
+
 
   return 0;
 
