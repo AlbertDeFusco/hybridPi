@@ -81,19 +81,17 @@ int main()
 
 double computePi(long int start, long int stop)
 {
-  double pi;
-  double prod=1.0;
+  double pi=2.0;
+  //double prod=2.0;
 
 #ifdef USE_OPENMP
-#pragma omp parallel for reduction(*:prod)
+#pragma omp parallel for reduction(*:pi)
 #endif
   for (long int i=start;i<=stop;i++)
   {
     double temp = 4.0*i*i;
-    prod*= temp/(temp - 1.0);
+    pi*= temp/(temp - 1.0);
   }
-  pi = prod*2.0;
-
 
   return pi;
 }
