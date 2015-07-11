@@ -1,8 +1,11 @@
+SHELL=/bin/bash -l
+
 all: pi pi-mpi pi-omp pi-serial
 
 CC = icc
-mpiModule = source /etc/profile.d/modules.sh && module load openmpi@1.8.6%intel@15.0.3-ukxwbpm
-MPICC = spack env openmpi%intel@15.0.3 mpicc
+
+mpiModule = spack load openmpi%intel@15.0.3
+MPICC     = spack env openmpi%intel@15.0.3 mpicc
 
 source = pi.cpp
 
